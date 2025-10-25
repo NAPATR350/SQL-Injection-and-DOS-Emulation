@@ -1,0 +1,18 @@
+Running 1m test @ http://localhost:8080/
+  12 threads and 100 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   170.36ms   62.17ms   1.91s    73.34%
+    Req/Sec    47.20     16.91   121.00     60.92%
+  33924 requests in 1.00m, 32.24MB read
+  Socket errors: connect 0, read 0, write 0, timeout 2
+Requests/sec:    564.48
+Transfer/sec:    549.29KB
+=== LOAD TEST RESULTS ===
+Total Requests: 33924
+Duration: 60.10 seconds
+Requests/sec: 564.48
+Transfer/sec: 0.54 MB
+Latency:
+  - Average: 170.36 ms
+  - Max: 1909.32 ms
+  - Stdev: 62.17 ms
